@@ -234,8 +234,12 @@ prompt_virtualenv() {
 prompt_context() {
     local user=`whoami`
 
-    if [[ $user != $DEFAULT_USER || -n $SSH_CLIENT ]]; then
-        prompt_segment black default "$user@\h"
+    # User is root
+    if [[ $EUID -eq 0 ]]
+    then
+        prompt_segment red default "$user@\h"
+    else  # User is not root
+        prompt_segment darkgreen black "$user@\h"
     fi
 }
 
@@ -324,7 +328,7 @@ prompt_status() {
     local symbols
     symbols=()
     [[ $RETVAL -ne 0 ]] && symbols+="$(ansi_single $(fg_color darkred))✘"
-    [[ $UID -eq 0 ]] && symbols+="$(ansi_single $(fg_color yellow))⚡"
+    # [[ $UID -eq 0 ]] && symbols+="$(ansi_single $(fg_color yellow))⚡"
     [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="$(ansi_single $(fg_color darkcyan))⚙"
 
     [[ -n "$symbols" ]] && prompt_segment black default "$symbols"
